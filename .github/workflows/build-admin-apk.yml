@@ -35,10 +35,12 @@ jobs:
           if [ -n "$SETTINGS_DIR" ] && [ "$SETTINGS_DIR" != "." ]; then
             cp -rn "$SETTINGS_DIR"/. .
           fi
-          cp .env.example .env 2>/dev/null || true
-          echo "SUPABASE_URL=https://placeholder.supabase.co" >> .env
-          echo "SUPABASE_ANON_KEY=placeholder" >> .env
+          
+          # إدخال بيانات Supabase للربط التلقائي للوحة الإدارة
+          echo "SUPABASE_URL=https://tnxdombqeiqgiwoxgaxc.supabase.co" > .env
+          echo "SUPABASE_ANON_KEY=sb_publishable_s2We-im8Fr5p6ANGPk69bA_jQQGpQjr" >> .env
           echo "sdk.dir=$ANDROID_HOME" > local.properties
+          
           sed -i "/signingConfig = signingConfigs/d" app/build.gradle.kts 2>/dev/null || true
           sed -i "/signingConfig signingConfigs/d" app/build.gradle.kts 2>/dev/null || true
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses >/dev/null 2>&1 || true
@@ -52,26 +54,26 @@ jobs:
           APK=$(find app/build/outputs/apk/debug -name "*.apk" | head -n 1)
           if [ -n "$APK" ]; then
             mkdir -p release_out
-            cp "$APK" release_out/Captain-Hima-Admin.apk
-            cp "$APK" Captain-Hima-Admin.apk
+            cp "$APK" release_out/Captain-Hima-Admin-Connected.apk
+            cp "$APK" Captain-Hima-Admin-Connected.apk
             git config user.name "github-actions[bot]"
             git config user.email "github-actions[bot]@users.noreply.github.com"
-            git add Captain-Hima-Admin.apk
-            git commit -m "Add Captain-Hima-Admin.apk [skip ci]" || true
+            git add Captain-Hima-Admin-Connected.apk
+            git commit -m "Add Captain-Hima-Admin-Connected.apk [skip ci]" || true
             git push origin main || true
           fi
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Captain-Hima-Admin-APK
-          path: release_out/Captain-Hima-Admin.apk
+          name: Captain-Hima-Admin-Connected-APK
+          path: release_out/Captain-Hima-Admin-Connected.apk
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: "v1.0-admin"
-          name: "Captain Hima Gym Admin APK v1.0 (لوحة التحكم)"
-          files: release_out/Captain-Hima-Admin.apk
+          tag_name: "v1.1-connected"
+          name: "Captain Hima Gym Admin APK v1.1 (متصل بـ Supabase)"
+          files: release_out/Captain-Hima-Admin-Connected.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
